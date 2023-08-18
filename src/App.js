@@ -1,56 +1,47 @@
-import React, { useState, useEffect } from 'react';
-import './App.css';
+import React, { useState } from "react";
+import "./styles.css";
 
-function App() {
+import Header from "./components/Header";
+import CreateArea from "./components/CreateArea";
+import Note from "./Note";
+import Count from "./components/Count";
+import Footer from "./components/Footer";
+
+function App(props) {
   const [notes, setNotes] = useState([]);
-  const [newNote, setNewNote] = useState('');
 
-  useEffect(() => {
-    const storedNotes = JSON.parse(localStorage.getItem('notes')) || [];
-    setNotes(storedNotes);
-  }, []);
+  function addNote(newNote) {
+    setNotes((prevValue) => {
+      return [...prevValue, newNote];
+    });
+  }
 
-  useEffect(() => {
-    localStorage.setItem('notes', JSON.stringify(notes));
-  }, [notes]);
-
-  const handleAddNote = () => {
-    if (newNote.trim() !== '') {
-      const updatedNotes = [...notes, { id: Date.now(), text: newNote }];
-      setNotes(updatedNotes);
-      setNewNote('');
-    }
-  };
-
-  const handleDeleteNote = (id) => {
-    const updatedNotes = notes.filter((note) => note.id !== id);
-    setNotes(updatedNotes);
-  };
-
+  function deleteNotes(id) {
+    setNotes((preValue) => {
+      return [...preValue.filter((note, index) => index !== id)];
+    });
+  }
   return (
     <div className="App">
-      <header className="App-header">
-        <h1>Google Keep Notes Clone</h1>
-      </header>
-      <div className="note-container">
-        <div className="input-container">
-          <input
-            type="text"
-            placeholder="Add a note"
-            value={newNote}
-            onChange={(e) => setNewNote(e.target.value)}
-          />
-          <button onClick={handleAddNote}>Add</button>
-        </div>
-        <div className="notes-list">
-          {notes.map((note) => (
-            <div key={note.id} className="note">
-              <p>{note.text}</p>
-              <button onClick={() => handleDeleteNote(note.id)}>Delete</button>
-            </div>
-          ))}
-        </div>
-      </div>
+      <Header />
+      <Count
+        count={
+          notes.length === 0
+            ? "Empty"
+            : `Showing ${notes.length} Notes in Database`
+        }
+      />
+      <CreateArea onAdd={addNote} />
+      {notes.map((note, index) => (
+        <Note
+          key={index}
+          id={index}
+          title={note.title}
+          content={note.content}
+          onDelete={deleteNotes}
+        />
+      ))}
+      <Footer />
     </div>
   );
 }
